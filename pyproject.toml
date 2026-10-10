@@ -1,0 +1,22 @@
+[project]
+name = "kwality"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "apscheduler>=3.11.3",
+    "databricks-sql-connector>=4.6.0",
+    "pyarrow>=26.0.0",
+    "pytest>=9.1.1",
+    "python-dotenv>=1.2.4",
+    "ruff>=0.17.0",
+    "ty>=0.0.86",
+]
+
+[project.scripts]
+kwality = "kwality:main"
+
+[build-system]
+requires = ["uv_build>=0.13.0,<0.14.0"]
+build-backend = "uv_build"
