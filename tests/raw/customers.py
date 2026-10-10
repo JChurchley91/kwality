@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+
 from databricks.sql.client import Connection
+
 from kwality.classes.test import Test
 
 

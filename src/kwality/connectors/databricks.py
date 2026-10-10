@@ -3,6 +3,7 @@ import os
 from databricks import sql
 from databricks.sql.client import Connection
 from dotenv import load_dotenv
+
 from kwality.utils.logger import get_logger
 
 load_dotenv()
