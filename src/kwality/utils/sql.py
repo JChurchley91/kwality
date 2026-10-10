@@ -4,7 +4,7 @@ from typing import Any
 
 
 def execute_sql(connection: Any, statement: str) -> int | None:
-    """Execute one statement using the DB-API 
+    """Execute one statement using the DB-API
     cursor shared by SQL connectors."""
     cursor = connection.cursor()
     try:

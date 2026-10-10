@@ -58,10 +58,43 @@ From the repository root, run:
 uv run python main.py
 ```
 
-This connects to Databricks, runs the customer and product checks under
-`sql/raw/`, prints the number of rows returned by each SQL file, and closes the
-connection. A nonzero row count means the query found rows matching that check
-(for example, customers with a null `ID` or `NAME`).
+This starts the scheduler and registers a cron job that runs the raw data-quality
+checks on a timer. The current scheduler configuration registers a job named
+`raw_tests` on the cron expression `*/30 * * * *`, which triggers every 30
+minutes. When the job fires, it connects to Databricks, runs the customer and
+product checks, and closes the connection. A nonzero row count means the query
+found rows matching that check (for example, customers with a null `ID` or
+`NAME`).
+
+The scheduler runs in a blocking loop while the process is alive, so the app
+continues running until you stop it with Ctrl+C. This makes it suitable for
+scheduled jobs that should keep polling on a cron cadence without needing a
+separate worker process.
+
+## Scheduler usage
+
+The scheduler wrapper lives in `src/kwality/utils/scheduler.py` and is a thin
+wrapper around APScheduler's `BackgroundScheduler`.
+
+```python
+from kwality.utils.scheduler import Scheduler
+
+scheduler = Scheduler(timezone="UTC")
+scheduler.add_job(my_job, "*/5 * * * *", job_id="my-job")
+scheduler.start()
+```
+
+This adds a cron-triggered job to the scheduler using a standard 5-field crontab
+string. Jobs are configured with:
+
+- `coalesce=True` to collapse missed runs into a single execution
+- `max_instances=1` to prevent overlapping runs of the same job
+- `misfire_grace_time=60` to allow a small recovery window for delayed runs
+
+Jobs are scheduled from `main.py` by calling `scheduler.add_job(...)` before
+entering the infinite loop. The example currently schedules the Databricks raw
+check job via `run_raw_tests`, which can be replaced with any callable you want
+to run on cron timings.
 
 ## Run tests
 
@@ -91,14 +124,16 @@ src/kwality/
   classes/       SQL-backed Test and ordered Job abstractions
   connectors/    Databricks SQL connection helper
   tests/         Unit tests, including the live connector test
-  utils/         SQL execution and logging helpers
+  utils/         Logging, SQL helpers, and cron scheduler wrapper
 tests/raw/       Example customer and product check definitions
 sql/raw/         SQL statements executed by the example checks
-main.py          Example runner for the raw checks
+main.py          Example scheduler entry point for cron-triggered jobs
 ```
 
 `Test` executes the `.sql` files in its configured folder in filename order.
 `Job` runs a sequence of enabled tests and returns their per-file row counts.
+The scheduler wrapper adds recurring cron-based execution without requiring an
+external job queue or scheduler service.
 
 ## Development checks
 
