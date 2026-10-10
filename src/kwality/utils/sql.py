@@ -8,6 +8,9 @@ def execute_sql(connection: Any, statement: str) -> int | None:
     cursor = connection.cursor()
     try:
         cursor.execute(statement)
+        if cursor.description is not None:
+            return len(cursor.fetchall())
+
         rowcount = cursor.rowcount
         return rowcount if isinstance(rowcount, int) else None
     finally:
