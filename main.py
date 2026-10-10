@@ -1,11 +1,22 @@
-from kwality.connectors.databricks import get_databricks_connection
-from tests.raw.customers import TestCustomers
-from tests.raw.products import TestProducts
+import time
 
-connection = get_databricks_connection()
+from dags.raw_tests import run_raw_tests
+from kwality.utils.logger import get_logger
+from kwality.utils.scheduler import Scheduler
+
+logger = get_logger(__name__)
 
 try:
-    test_raw_customers = TestCustomers(connection=connection).run()
-    test_raw_products = TestProducts(connection=connection).run()
-finally:
-    connection.close()
+    logger.info("Initializing Kwality.")
+    scheduler = Scheduler()
+    scheduler.add_job(run_raw_tests, "* * * * *", job_id="raw_tests")
+    scheduler.start()
+except Exception as e:
+    logger.error("Failed to start scheduler: %s", e)
+    raise
+
+try:
+    while True:
+        time.sleep(1)
+except (KeyboardInterrupt, SystemExit):
+    scheduler.shutdown()
