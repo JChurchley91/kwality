@@ -30,9 +30,7 @@ def test_test_executes_sql_and_closes_cursor() -> None:
     test = SqlTest(name="null-check", sql="INSERT INTO dq_results SELECT 1")
 
     assert test.run(connection) == 1
-    assert connection.cursors[0].statements == [
-        "INSERT INTO dq_results SELECT 1"
-    ]
+    assert connection.cursors[0].statements == ["INSERT INTO dq_results SELECT 1"]
     assert connection.cursors[0].closed
 
 
