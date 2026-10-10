@@ -19,7 +19,7 @@ def get_databricks_connection() -> Connection:
             server_hostname=os.getenv("DATABRICKS_SERVER_HOSTNAME"),
             http_path=os.getenv("DATABRICKS_HTTP_PATH"),
             access_token=os.getenv("DATABRICKS_TOKEN"),
-            use_kernel=True
+            use_kernel=True,
         )
         get_logger(__name__).info("Successfully connected to Databricks SQL endpoint.")
         return connector

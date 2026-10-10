@@ -25,7 +25,7 @@ def test_get_logger_returns_logger_with_stream_handler():
 
 def test_get_logger_does_not_add_duplicate_handlers():
     """
-    Test that get_logger does not add duplicate handlers when 
+    Test that get_logger does not add duplicate handlers when
     called multiple times with the same logger name.
     """
     logger_name = f"kwality.test_logger_duplicate.{uuid.uuid4().hex}"
